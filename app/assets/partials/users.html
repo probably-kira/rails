@@ -1,0 +1,75 @@
+<div id="users-list">
+    <div class="row filter">
+        <div class="col-md-4 clearfix">
+            <input type="text" class="form-control" placeholder="Filter" ng-model="searchText"/>
+        </div>
+    </div>
+
+    <div class="options">
+        <div class="pagination" ng-if="users.list.length">
+        <span ng-if="pagination.page !== 0">
+            <a href="" ng-click="pagination.prevPage()">Previous {{ pagination.perPage }} users</a> |
+        </span>
+
+        <span ng-if="users.list.length  > ((pagination.page * pagination.perPage) + (pagination.perPage))">
+            Showing {{ (pagination.page * pagination.perPage) + 1 }} - {{((pagination.page * pagination.perPage) + (pagination.perPage)) }} from {{ users.list.length }}
+        </span>
+        <span ng-if="!(users.list.length  > ((pagination.page * pagination.perPage) + (pagination.perPage)))">
+            Showing {{ (pagination.page * pagination.perPage) + 1 }} - {{ (pagination.page * pagination.perPage) + (((pagination.page * pagination.perPage) + (pagination.perPage)) - users.list.length)}} from {{ users.list.length }}
+        </span>
+
+        <span href="" ng-if="pagination.page + 1 < pagination.numPages">
+            | <a ng-click="pagination.nextPage()">Next {{ pagination.perPage }} users</a>
+        </span>
+        </div>
+
+        <div class="text-right">
+            <a href="" class="btn btn-default" ng-click="addUser()">Add user</a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+        <tr>
+            <th ng-repeat="field in order" ng-click="sort(field)">
+                {{ normalizer[field].header }}
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td ng-repeat="field in order" class="td-{{ field }}" ng-if="newUserMode">
+                    <input class="form-control" placeholder="{{ normalizer[field].placeholder }}" type="text" ng-model="newUser[field]">
+                    <a title="Save changed" ng-click="saveNew(newUser)" ng-if="$last">Save</a>
+                    <a title="Revert changes" ng-click="resetNew(id, user)" ng-if="$last">Reset</a>
+                    <a title="User's activity" ng-click="setActive(user)" ng-if="$last">Active</a>
+                </td>
+            </tr>
+
+            <tr ng-repeat="user in users.list | filter:searchText | orderBy:sortParams.field:sortParams.desc | startFrom: pagination.page * pagination.perPage | limitTo: pagination.perPage">
+                <td ng-repeat="field in order" class="td-{{ field }}" ng-if="user.inEditMode">
+                    <input class="form-control" type="text" ng-model="user[field]" ng-if="user.inEditMode">
+                    <div ng-if="$last">
+                        <a title="Save changed" ng-click="save(user.id, user)">Save</a>
+                        <a title="Revert changes" ng-click="reset(user.id, user)" ng-if="$last">Reset</a>
+                        <a title="User's activity" ng-click="toggleActive(user)" ng-if="$last">
+                            <span ng-if="user.active">Active</span>
+                            <span ng-if="!user.active">Inactive</span>
+                        </a>
+                    </div>
+                </td>
+                <td ng-repeat="field in order" class="td-{{ field }}" ng-if="!user.inEditMode">
+                    <span ng-if="field !== 'created' && field !== 'edited'">
+                        {{ user[field] }}
+                    </span>
+                    <span ng-if="field === 'created' || field === 'edited'">
+                        {{ user[field] | date:'yyyy-MM-dd' }}<br>
+                        {{ user[field] | date:'HH:mm:ss' }}
+
+                    </span>
+                    <a class="edit" ng-click="edit(user.id)" ng-if="$last">Edit</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,38 @@
+body {
+    padding: 70px 5px 0;
+}
+
+#users-list {
+	.td-created,
+	.td-edited,
+	.td-active {
+		input[type=text] {
+			display: none;
+		}
+	}
+
+	.pagination {
+		position: absolute;
+		left: 0;
+		margin-top: 10px;
+	}
+
+	.filter {
+		.col-md-4 {
+			margin-left: 0;
+		}
+
+	}
+	.options {
+		position: relative;
+		padding: 20px 0;
+	}
+
+	.td-active {
+		position: relative;
+		a {
+			display: inline-block;
+			margin-left: 10px;
+		}
+	}
+}
