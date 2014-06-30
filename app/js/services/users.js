@@ -58,6 +58,7 @@ App.factory('$users', function() {
                 id: '77'
             }
         ]
+
     var service = Emitter({
         get: function() {
             var self = this;
@@ -76,12 +77,15 @@ App.factory('$users', function() {
             this.off('change', fn);
         },
         list: [],
+        sortParams: {
+            field: 'lastName',
+            desc: false
+        },
         getUser: function(id) {
             return _.where(this.list, {id: id}).pop();
         },
-        update: function(id, userData, silent) {
+        update: function(id, userData) {
             var self = this;
-            if (!silent) {
                 //ajax put request here;
                 //assuming that we have url like /users/<id>
                 setTimeout(function() {
@@ -91,7 +95,6 @@ App.factory('$users', function() {
                     self.list = list;
                     self.trigger('change');
                 }, 500);
-            }
             this.trigger('change');
         },
         add: function(user) {
@@ -102,6 +105,16 @@ App.factory('$users', function() {
                 self.list.push(user);
                 self.trigger('change');
             }, 500);
+        },
+        sort: function(field) {
+            var sortParams = this.sortParams;
+            if (sortParams.field === field) {
+                sortParams.desc = !sortParams.desc;
+            } else {
+                sortParams.field = field;
+                sortParams.desc = false;
+            }
+            self.trigger('change');
         }
     });
 

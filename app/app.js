@@ -5,7 +5,7 @@ var App = angular.module('app', ['ngSanitize', 'ngResource', 'ui.router', 'simpl
 	$locationProvider.hashPrefix('!');
 	$urlRouterProvider.otherwise("/users");
 
-	$stateProvider.state('todo', {
+	$stateProvider.state('users', {
 		url: "/users", // root route
 		views: {
 			"mainView": {

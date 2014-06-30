@@ -14,8 +14,8 @@
         <span ng-if="users.list.length  > ((pagination.page * pagination.perPage) + (pagination.perPage))">
             Showing {{ (pagination.page * pagination.perPage) + 1 }} - {{((pagination.page * pagination.perPage) + (pagination.perPage)) }} from {{ users.list.length }}
         </span>
-        <span ng-if="!(users.list.length  > ((pagination.page * pagination.perPage) + (pagination.perPage)))">
-            Showing {{ (pagination.page * pagination.perPage) + 1 }} - {{ (pagination.page * pagination.perPage) + (((pagination.page * pagination.perPage) + (pagination.perPage)) - users.list.length)}} from {{ users.list.length }}
+        <span ng-if="users.list.length  <= ((pagination.page * pagination.perPage) + (pagination.perPage))">
+            Showing {{ (pagination.page * pagination.perPage) + 1 }} - {{ pagination.perPage - ((pagination.page * pagination.perPage) - users.list.length)}} from {{ users.list.length }}
         </span>
 
         <span href="" ng-if="pagination.page + 1 < pagination.numPages">
@@ -31,7 +31,7 @@
     <table class="table table-bordered table-hover table-striped">
         <thead>
         <tr>
-            <th ng-repeat="field in order" ng-click="sort(field)">
+            <th ng-repeat="field in order" ng-click="users.sort(field)">
                 {{ normalizer[field].header }}
             </th>
         </tr>
@@ -41,18 +41,18 @@
                 <td ng-repeat="field in order" class="td-{{ field }}" ng-if="newUserMode">
                     <input class="form-control" placeholder="{{ normalizer[field].placeholder }}" type="text" ng-model="newUser[field]">
                     <a title="Save changed" ng-click="saveNew(newUser)" ng-if="$last">Save</a>
-                    <a title="Revert changes" ng-click="resetNew(id, user)" ng-if="$last">Reset</a>
+                    <a title="Revert changes" ng-click="resetNew()" ng-if="$last">Reset</a>
                     <a title="User's activity" ng-click="setActive(user)" ng-if="$last">Active</a>
                 </td>
             </tr>
 
-            <tr ng-repeat="user in users.list | filter:searchText | orderBy:sortParams.field:sortParams.desc | startFrom: pagination.page * pagination.perPage | limitTo: pagination.perPage">
+            <tr ng-repeat="user in users.list | filter:searchText | orderBy:users.sortParams.field:users.sortParams.desc | startFrom: pagination.page * pagination.perPage | limitTo: pagination.perPage">
                 <td ng-repeat="field in order" class="td-{{ field }}" ng-if="user.inEditMode">
                     <input class="form-control" type="text" ng-model="user[field]" ng-if="user.inEditMode">
                     <div ng-if="$last">
                         <a title="Save changed" ng-click="save(user.id, user)">Save</a>
-                        <a title="Revert changes" ng-click="reset(user.id, user)" ng-if="$last">Reset</a>
-                        <a title="User's activity" ng-click="toggleActive(user)" ng-if="$last">
+                        <a title="Revert changes" ng-click="reset(user)">Reset</a>
+                        <a title="User's activity" ng-click="toggleActive(user)">
                             <span ng-if="user.active">Active</span>
                             <span ng-if="!user.active">Inactive</span>
                         </a>
@@ -67,7 +67,7 @@
                         {{ user[field] | date:'HH:mm:ss' }}
 
                     </span>
-                    <a class="edit" ng-click="edit(user.id)" ng-if="$last">Edit</a>
+                    <a class="edit" ng-click="edit(user)" ng-if="$last && !disableOtherUsers">Edit</a>
                 </td>
             </tr>
         </tbody>

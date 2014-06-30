@@ -1,113 +1,74 @@
-App.controller('usersCtrl', ['$scope', '$users', 'Pagination',  function($scope, $users, Pagination) {
+App.controller('usersCtrl', ['$scope', '$users', '$normalizer', 'Pagination',  function($scope, $users, $normalizer, Pagination) {
 	$scope.users = $users;
-
+    $scope.newUser = {}
+    $scope.newUserMode = false;
+    $scope.disableOtherUsers = false;
     $scope.order = ['lastName', 'firstName', 'age', 'email', 'created', 'edited', 'active'];
-    $scope.normalizer = {
-        lastName: {
-            placeholder: 'Enter a last name',
-            header: 'Last name'
-        },
-        firstName: {
-            placeholder: 'Enter a first name',
-            header: 'First name'
-        },
-        age: {
-            placeholder: 'Age',
-            header: 'Age'
-        },
-        email: {
-            placeholder: 'emal@yourdomain.com',
-            header: 'Email'
-        },
-        created: {
-            header: 'Created'
-        },
-        edited: {
-            header: 'Last edited'
-        },
-        active: {
-            header: 'Active'
-        }
-    };
+    $scope.normalizer = $normalizer;
+    $scope.backup = {};
 
 
-    $users.on('change', function() {
+    //get the initial data
+    $users.on('change', function(data) {
         if (!$scope.$$phase) $scope.$apply();
-
-        //we need to reinit pagination every time whaen we update the data
+        //we need to reinit pagination every time when we update the data
         initPagination();
     });
     $users.get();
 
 
-    var backup = {};
-    $scope.edit = function(id) {
-        var user = $users.getUser(id);
-        backup = angular.copy(user);
+
+    //existing user operations
+    $scope.edit = function(user) {
+        $scope.disableOtherUsers = true;
+        $scope.backup = angular.copy(user);
         user.inEditMode = true;
     };
-
-    function updateUserList(id, userData, silent) {
-        $scope.users.update(id, userData, silent);
-        backup = {};
-    };
-
     $scope.save = function(id, user) {
         delete user.inEditMode;
         user.edited = new Date();
-        updateUserList(id, user);
+        $scope.users.update(id, user);
+        $scope.disableOtherUsers = false;
     };
-
-    $scope.reset = function(id, user) {
+    $scope.reset = function(user) {
         delete user.inEditMode;
-        updateUserList(id, backup, true);
+        angular.extend(user, $scope.backup);
+        $scope.disableOtherUsers = false;
+        $scope.backup = {};
+    };
+    $scope.toggleActive = function(user) {
+        user.active = !user.active;
     };
 
-    $scope.newUser = {}
-    $scope.newUserMode = false;
+
+
+    //new user operations
     $scope.addUser = function() {
         $scope.newUserMode = true;
+        $scope.disableOtherUsers = true;
     };
-
     $scope.saveNew = function(user) {
         //assuming that new-created users are active by default
         if (!user.lastName) {
             //kind of validation
             alert('please provide the last name!');
-            return;
+            return false;
         }
         user.created = new Date();
         user.edited = new Date();
         user.active = true;
-
         $users.add(user);
         $scope.resetNew();
     };
-
     $scope.resetNew = function() {
         $scope.newUser = {};
         $scope.newUserMode = false;
+        $scope.disableOtherUsers = false;
     };
 
-    $scope.toggleActive = function(user) {
-        user.active = !user.active;
-    };
 
-    //sorting
-    $scope.sortParams = {
-        field: 'lastName',
-        desc: false
-    };
-    $scope.sort = function(field) {
-        var sortParams = $scope.sortParams;
-        if (sortParams.field === field) {
-            sortParams.desc = !sortParams.desc;
-        } else {
-            sortParams.field = field;
-            sortParams.desc = false;
-        }
-    }
 
+    //calculate pagination
     function initPagination() {
         $scope.pagination = Pagination.getNew(4);
         $scope.pagination.numPages = Math.ceil($scope.users.list.length / $scope.pagination.perPage);
