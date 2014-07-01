@@ -6,7 +6,7 @@
 
 or if you have **Brunch** installed run:
 
-*`brunch new git@github.com:probably-kira/rails.git rails`
+* `brunch new git@github.com:probably-kira/rails.git rails`
 * `cd rails`
 * `sudo npm install` to install node & bower packages
 
