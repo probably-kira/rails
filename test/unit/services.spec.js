@@ -1,5 +1,5 @@
 'use strict';
-describe("serviceы", function() {
+describe("services", function() {
 	beforeEach(module("app"));
 	return describe("$users", function() {
 		return it("should return current version", inject(function(version) {
